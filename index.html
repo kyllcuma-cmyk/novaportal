@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-visual">
+    <title>NovaPortal Afiliator Cloud</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        :root {
+            /* Warna Dasar iOS Dark Mode */
+            --bg-color: #000000;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --accent: #0a84ff;
+            --success: #32d74b;
+            --warning: #ff9f0a;
+            --danger: #ff453a;
+            
+            /* Glassmorphism Premium */
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        /* 1. EFEK AURORA BLUR KHAS APPLE */
+        .aurora-bg {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1; overflow: hidden; background: #000000;
+        }
+        .blob {
+            position: absolute; border-radius: 50%; 
+            filter: blur(90px); opacity: 0.4; animation: float 20s infinite ease-in-out alternate;
+            will-change: transform; transform: translateZ(0);
+        }
+        .blob-magenta { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #ff2d55; }
+        .blob-indigo { bottom: 0; right: -10%; width: 60vw; height: 60vw; background: #5e5ce6; animation-delay: -5s; }
+        .blob-cyan { top: 40%; left: 10%; width: 40vw; height: 40vw; background: #32ade6; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) translateZ(0); }
+            100% { transform: translate(30px, 50px) scale(1.1) translateZ(0); }
+        }
+
+        /* 2. HEADER ATAS */
+        .top-header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.5px solid var(--glass-border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 16px; z-index: 1000;
+        }
+        .header-brand { display: flex; align-items: center; gap: 10px; }
+        .header-logo { 
+            width: 34px; height: 34px; border-radius: 10px; 
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); 
+            border: 0.5px solid var(--glass-highlight); 
+            display: flex; justify-content: center; align-items: center; 
+        }
+        .header-text { font-size: 17px; font-weight: 700; letter-spacing: -0.5px; }
+        
+        .logout-btn { 
+            background: rgba(255, 69, 58, 0.1); color: var(--danger); width: 36px; height: 36px; 
+            display: flex; justify-content: center; align-items: center; font-size: 20px; 
+            cursor: pointer; transition: 0.2s; border: 0.5px solid rgba(255, 69, 58, 0.3); outline: none;
+            border-radius: 8px; 
+        }
+        .logout-btn:active { opacity: 0.7; transform: scale(0.9); }
+
+        /* 3. AREA KONTEN */
+        .app-container { padding: 110px 16px 100px 16px; min-height: 100vh; }
+        .page-section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .page-section.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card { 
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border: 0.5px solid var(--glass-border); border-top: 1px solid var(--glass-highlight); 
+            border-radius: 20px; padding: 20px; margin-bottom: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); transform: translateZ(0);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* --- STYLES UNTUK HALAMAN AUTH (LOGIN/DAFTAR) --- */
+        .auth-container { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 180px); }
+        .auth-header { text-align: center; margin-bottom: 24px; }
+        .auth-header h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .auth-header p { font-size: 14px; color: var(--text-muted); }
+        .auth-toggle { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
+        .auth-toggle a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
+        
+        .captcha-container { display: flex; align-items: center; background: rgba(0, 0, 0, 0.4); border: 0.5px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; cursor: pointer; user-select: none; transition: 0.3s; }
+        .captcha-container:hover { border-color: rgba(255, 255, 255, 0.2); }
+        .captcha-container:active { transform: scale(0.98); }
+        .captcha-checkbox-ui { width: 26px; height: 26px; border: 2px solid var(--text-muted); border-radius: 6px; display: flex; justify-content: center; align-items: center; margin-right: 12px; transition: 0.3s; }
+        .captcha-text { flex: 1; font-size: 14px; color: var(--text-main); font-weight: 500; }
+        .captcha-logo { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); font-weight: 500; }
+        .captcha-logo i { font-size: 22px; color: var(--accent); margin-bottom: 2px; }
+
+        .otp-group { display: flex; gap: 10px; }
+        .btn-otp { background: rgba(10, 132, 255, 0.15); color: var(--accent); border: 0.5px solid rgba(10, 132, 255, 0.3); border-radius: 12px; padding: 0 16px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .btn-otp:active { transform: scale(0.95); }
+        .btn-otp:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 4. DASBOR STYLES */
+        .dash-header { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
+        .dash-amount { font-size: 34px; font-weight: 800; font-family: 'JetBrains Mono', monospace; letter-spacing: -1.5px; margin-bottom: 20px; } 
+        
+        .dash-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .dash-stat-item { background: rgba(255, 255, 255, 0.02); border: 0.5px solid var(--glass-border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+        .dash-stat-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .icon-income { background: rgba(255, 159, 10, 0.15); color: var(--warning); }
+        .icon-aff { background: rgba(10, 132, 255, 0.15); color: var(--accent); }
+        .icon-green { background: rgba(50, 215, 75, 0.15); color: var(--success); }
+        .icon-orange { background: rgba(255, 159, 10, 0.15); color: var(--warning); }
+        
+        .dash-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+        .dash-stat-val { font-size: 15px; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+        .dash-stat-sub { font-size: 10px; color: var(--warning); font-weight: 600; margin-top: 2px; }
+
+        /* KOTAK PERINGATAN */
+        .alert-premium, .alert-info, .alert-success { border-radius: 20px; padding: 16px; display: flex; gap: 12px; margin-bottom: 16px; border: 0.5px solid; }
+        .alert-premium { background: linear-gradient(135deg, rgba(255, 69, 58, 0.15) 0%, rgba(255, 69, 58, 0.05) 100%); border-color: rgba(255, 69, 58, 0.3); }
+        .alert-premium i { font-size: 22px; color: var(--danger); flex-shrink: 0; }
+        .alert-info { background: linear-gradient(135deg, rgba(10, 132, 255, 0.15) 0%, rgba(10, 132, 255, 0.05) 100%); border-color: rgba(10, 132, 255, 0.3); }
+        .alert-info i { font-size: 22px; color: var(--accent); flex-shrink: 0; }
+        .alert-success { background: linear-gradient(135deg, rgba(50, 215, 75, 0.15) 0%, rgba(50, 215, 75, 0.05) 100%); border-color: rgba(50, 215, 75, 0.3); }
+        .alert-success i { font-size: 22px; color: var(--success); flex-shrink: 0; }
+
+        .alert-content h4 { color: #fff; font-size: 14px; margin-bottom: 6px; font-weight: 600; }
+        .alert-content p { color: rgba(255,255,255,0.8); font-size: 12px; line-height: 1.5; margin-bottom: 8px; }
+        .alert-content ul { color: rgba(255,255,255,0.8); font-size: 12px; line-height: 1.5; padding-left: 16px; }
+        .alert-content li { margin-bottom: 6px; }
+        .alert-premium .alert-content li::marker { color: var(--danger); }
+        .alert-info .alert-content li::marker { color: var(--accent); }
+        .alert-success .alert-content li::marker { color: var(--success); }
+        .alert-content strong { color: #fff; }
+
+        /* LIST HISTORY & USERS */
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 16px; transition: 0.2s; }
+        .history-item:active { background: rgba(255,255,255,0.05); }
+        .history-info { display: flex; align-items: center; gap: 12px; }
+        .history-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .history-icon.success { background: rgba(50, 215, 75, 0.15); color: var(--success); }
+        .history-icon.pending { background: rgba(255, 159, 10, 0.15); color: var(--warning); }
+        .history-icon.danger { background: rgba(255, 69, 58, 0.15); color: var(--danger); }
+        .history-text h5 { font-size: 13px; color: var(--text-main); font-weight: 600; margin-bottom: 2px; }
+        .history-text p { font-size: 11px; color: var(--text-muted); }
+        .history-amount { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+        /* 5. WITHDRAW STYLES & DYNAMIC SUMMARY */
+        .input-group { margin-bottom: 16px; }
+        .input-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block; text-transform: uppercase; }
+        .input-box { background: rgba(0, 0, 0, 0.3); border: 0.5px solid var(--glass-border); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: 0.3s; }
+        .input-box:focus-within { border-color: var(--accent); background: rgba(10, 132, 255, 0.05); }
+        
+        .input-field { background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 600; width: 100%; outline: none; }
+        .input-field::placeholder { color: rgba(255,255,255,0.2); }
+        
+        .custom-select-btn { background: transparent; border: none; width: 100%; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-size: 16px; font-weight: 600; cursor: pointer; }
+        .input-amount-wrap { align-items: baseline; justify-content: flex-start; }
+        .input-amount-wrap span { color: var(--text-muted); font-weight: 600; font-size: 16px; margin-right: 4px; }
+        .input-amount { font-size: 22px; font-family: 'JetBrains Mono', monospace; }
+        .warning-text { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; align-items: center; gap: 4px; font-weight: 500; }
+        .wd-summary { background: rgba(0, 0, 0, 0.4); border: 1px dashed var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 20px; display: none; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); }
+        .summary-val { color: var(--text-main); font-weight: 600; text-align: right; word-break: break-all; max-width: 60%; }
+        .summary-total { border-top: 1px dashed var(--glass-border); margin-top: 12px; padding-top: 12px; font-weight: 700; color: var(--text-main); font-size: 14px; }
+
+        .btn-primary { width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 16px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-primary:active { transform: scale(0.96); opacity: 0.8; }
+        .btn-primary:disabled { background: rgba(255,255,255,0.1); color: var(--text-muted); cursor: not-allowed; transform: none; }
+
+        /* --- STYLES HALAMAN PROFIL --- */
+        .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding: 0 4px; }
+        .profile-avatar { 
+            width: 60px; height: 60px; border-radius: 50%; 
+            background: linear-gradient(135deg, var(--accent) 0%, #5e5ce6 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 26px; font-weight: 700; color: #fff; border: 2px solid rgba(255,255,255,0.1); 
+        }
+        .profile-info h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .profile-info p { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        
+        .menu-list { display: flex; flex-direction: column; }
+        .menu-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 0; border-bottom: 0.5px solid var(--glass-border); cursor: pointer; transition: 0.2s; 
+        }
+        .menu-item:last-child { border-bottom: none; padding-bottom: 4px; }
+        .menu-item:active { opacity: 0.6; }
+        .menu-left { display: flex; align-items: center; gap: 14px; }
+        .menu-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .menu-text { font-size: 14px; font-weight: 600; color: #fff; }
+        .menu-right { color: var(--text-muted); font-size: 20px; }
+        .icon-blue { background: rgba(10, 132, 255, 0.15); color: var(--accent); }
+        .icon-gray { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+        /* 6. FIX BUG IOS BOTTOM SHEET */
+        .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+        .sheet-overlay.active { opacity: 1; visibility: visible; }
+        
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 24px 24px 0 0; z-index: 2001; transform: translateY(100%); transition: transform 0.3s ease-out; padding-bottom: calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0,0,0,0.5); border-top: 0.5px solid var(--glass-border); }
+        .bottom-sheet.active { transform: translateY(0); }
+        
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 0.5px solid var(--glass-border); }
+        .sheet-header h3 { font-size: 16px; font-weight: 600; color: #fff; }
+        .sheet-close { background: transparent; border: none; color: var(--accent); font-weight: 600; font-size: 15px; cursor: pointer; }
+        .sheet-options { max-height: 50vh; overflow-y: auto; }
+        .sheet-option { padding: 16px 20px; border-bottom: 0.5px solid var(--glass-border); font-size: 16px; font-weight: 500; color: #fff; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; }
+        .sheet-option:active { background: rgba(255,255,255,0.05); }
+        .sheet-option i { font-size: 24px; color: var(--accent); }
+
+        /* MODAL STANDAR (LOGOUT DLL) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            z-index: 3000; opacity: 0; visibility: hidden; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-box {
+            background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 0.5px solid var(--glass-border); border-radius: 20px;
+            width: 100%; max-width: 320px; text-align: center; overflow: hidden;
+            transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-content { padding: 24px 20px; }
+        .modal-title { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .modal-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        
+        .modal-body {
+            max-height: 50vh; overflow-y: auto; text-align: left; margin-top: 15px; padding-right: 5px;
+        }
+        .modal-body p { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
+        .modal-body ul { padding-left: 16px; color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
+        .modal-body li { margin-bottom: 6px; }
+
+        .modal-actions { display: flex; border-top: 0.5px solid var(--glass-border); }
+        .modal-btn { flex: 1; padding: 14px; background: transparent; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-cancel { color: var(--accent); border-right: 0.5px solid var(--glass-border); }
+        .btn-confirm { color: var(--danger); }
+        .modal-btn:active { background: rgba(255,255,255,0.05); }
+
+        /* CUSTOMER SERVICE CHAT UI */
+        .cs-modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; 
+            background: #000000; z-index: 4000; opacity: 0; visibility: hidden; 
+            transition: opacity 0.3s ease; display: flex; flex-direction: column; 
+        }
+        .cs-modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .cs-header { 
+            display: flex; align-items: center; padding: 16px; 
+            background: #1c1c1e; border-bottom: 0.5px solid rgba(255, 255, 255, 0.1); 
+            padding-top: max(16px, env(safe-area-inset-top)); 
+        }
+        .cs-back-btn { 
+            background: transparent; border: none; color: var(--accent); 
+            font-size: 32px; cursor: pointer; display: flex; align-items: center; 
+            margin-right: 12px; transition: 0.2s; 
+        }
+        .cs-back-btn:active { opacity: 0.6; }
+        
+        .cs-header-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .cs-avatar { 
+            width: 40px; height: 40px; border-radius: 50%; 
+            background: linear-gradient(135deg, var(--success), #28a745); 
+            display: flex; justify-content: center; align-items: center; 
+            color: #fff; font-weight: 700; font-size: 14px; 
+        }
+        .cs-title-box h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+        .cs-title-box p { font-size: 12px; color: var(--success); display: flex; align-items: center; gap: 4px; }
+        
+        .cs-body { 
+            flex: 1; padding: 16px; overflow-y: auto; background: #000000; 
+            display: flex; flex-direction: column; gap: 12px; overscroll-behavior-y: contain; 
+        }
+        
+        .cs-footer { 
+            padding: 12px 16px; background: #1c1c1e; 
+            border-top: 0.5px solid rgba(255, 255, 255, 0.1); 
+            padding-bottom: max(12px, env(safe-area-inset-bottom)); 
+            display: flex; gap: 10px; align-items: center; 
+        }
+        .cs-input { 
+            flex: 1; background: rgba(255, 255, 255, 0.1); border: 1px solid transparent; 
+            border-radius: 20px; padding: 12px 16px; color: #fff; outline: none; 
+            font-size: 14px; transition: 0.2s; 
+        }
+        .cs-input:focus { border-color: var(--accent); background: rgba(10, 132, 255, 0.05); }
+        .cs-send-btn { 
+            width: 44px; height: 44px; border-radius: 50%; background: var(--accent); 
+            color: #fff; border: none; display: flex; justify-content: center; 
+            align-items: center; font-size: 20px; cursor: pointer; transition: 0.2s; flex-shrink: 0; 
+        }
+        .cs-send-btn:active { transform: scale(0.9); opacity: 0.8; }
+
+        .chat-bubble { 
+            max-width: 75%; padding: 12px 16px; border-radius: 20px; font-size: 14px; 
+            line-height: 1.4; position: relative; width: fit-content; display: flex; 
+            flex-direction: column; word-wrap: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        }
+        .chat-me { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-admin-reply { background: #2c2c2e; color: #fff; align-self: flex-start; border-bottom-left-radius: 4px; border: 0.5px solid rgba(255, 255, 255, 0.05); }
+        .chat-time { font-size: 10px; opacity: 0.7; margin-top: 6px; align-self: flex-end; }
+
+        /* 7. AFILIATOR STYLES */
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-half { flex: 1; padding: 14px; border-radius: 16px; font-weight: 600; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; border: none; }
+        .btn-copy { background: rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(10px); }
+        .btn-copy:active { background: rgba(255,255,255,0.2); transform: scale(0.96); }
+        .btn-share { background: var(--text-main); color: #000; }
+        .btn-share:active { transform: scale(0.96); opacity: 0.8; }
+        .link-box { background: rgba(0, 0, 0, 0.4); border: 0.5px solid var(--glass-border); border-radius: 16px; padding: 14px; display: flex; align-items: center; }
+        .link-input { background: transparent; border: none; color: var(--text-main); font-size: 13px; font-weight: 500; outline: none; width: 100%; text-align: center; }
+        .empty-state { color: var(--text-muted); font-size: 13px; text-align: center; padding: 16px 0; }
+
+        /* STYLE POPUP TOAST */
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 0.5px solid var(--glass-border); transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+        .toast.show { top: 30px; }
+        .toast i { font-size: 18px; }
+        .toast.success i { color: var(--success); }
+        .toast.error { border-color: rgba(255, 69, 58, 0.4); background: rgba(40, 10, 10, 0.95); }
+        .toast.error i { color: var(--danger); }
+        .toast.info { border-color: rgba(10, 132, 255, 0.4); }
+        .toast.info i { color: var(--accent); }
+
+        /* 8. NAVIGASI BAWAH */
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px; background: rgba(30, 30, 30, 0.65); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 0.5px solid rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.25); border-radius: 30px; display: flex; justify-content: space-around; padding: 8px; z-index: 1000; box-shadow: 0 15px 30px rgba(0,0,0,0.5); display: none; }
+        .bottom-nav.active { display: flex; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); height: 50px; border-radius: 18px; cursor: pointer; transition: 0.3s; position: relative; }
+        .nav-item i { font-size: 20px; margin-bottom: 2px; transition: 0.3s; }
+        .nav-item span { font-size: 10px; font-weight: 600; }
+        .nav-item.active { color: var(--text-main); }
+        .nav-item.active i { transform: translateY(-2px) scale(1.05); }
+        .nav-item.active::after { content: ''; position: absolute; bottom: 6px; width: 4px; height: 4px; background: var(--text-main); border-radius: 50%; }
+        
+        /* Style Cover Video Anti-Lag */
+        .vid-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10; cursor: pointer; transition: 0.3s;
+        }
+        .vid-overlay i { font-size: 54px; color: var(--accent); margin-bottom: 8px; transition: 0.3s; }
+        .vid-overlay:active i { transform: scale(0.85); }
+        .vid-overlay span { font-size: 14px; font-weight: 600; color: #fff; }
+
+        /* --- DYNAMIC ISLAND NOTIFICATION STYLES --- */
+        .dynamic-island-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            pointer-events: none; /* Biar tetap bisa diklik area di bawahnya */
+        }
+        .dynamic-island {
+            background: #000000;
+            color: #ffffff;
+            border-radius: 40px;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.15);
+            /* Initial state */
+            width: 36px;
+            height: 36px;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        .dynamic-island.show {
+            width: 290px;
+            padding: 8px 16px;
+            opacity: 1;
+        }
+        .dynamic-island i {
+            color: var(--accent);
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .dynamic-island-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            transition-delay: 0.2s; /* Nunggu pulau melebar baru muncul teks */
+        }
+        .dynamic-island.show .dynamic-island-text {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="aurora-bg">
+        <div class="blob blob-magenta"></div>
+        <div class="blob blob-indigo"></div>
+        <div class="blob blob-cyan"></div>
+    </div>
+
+    <div class="dynamic-island-container">
+        <div id="dynamicIsland" class="dynamic-island">
+            <i class='bx bxs-bell-ring'></i>
+            <span class="dynamic-island-text" id="dynamicIslandText">Ketuk sekali lagi untuk memutar suara!</span>
+        </div>
+    </div>
+
+    <div id="customToast" class="toast">
+        <i id="toastIcon" class='bx bxs-check-circle'></i> <span id="toastMessage">Berhasil!</span>
+    </div>
+
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-box">
+            <div class="modal-content">
+                <h3 class="modal-title">Keluar Akun?</h3>
+                <p class="modal-desc">Sesi Anda akan diakhiri. Anda harus login kembali untuk mengakses dasbor.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="closeModal('logoutModal')">Batal</button>
+                <button class="modal-btn btn-confirm" onclick="executeLogout()">Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="privacyModal">
+        <div class="modal-box" style="max-width: 360px;">
+            <div class="modal-content">
+                <h3 class="modal-title" style="text-align: center;">Kebijakan Privasi</h3>
+                <div class="modal-body">
+                    <p><strong>1. Pengumpulan Data</strong><br>Kami hanya mengumpulkan informasi dasar seperti nama pengguna, email, dan riwayat transaksi untuk keperluan administrasi internal NovaPortal.</p>
+                    <p><strong>2. Keamanan Akun</strong><br>Seluruh kata sandi dan riwayat penarikan dienkripsi dengan standar keamanan tinggi. Kami tidak pernah membagikan data Anda kepada pihak ketiga.</p>
+                    <p><strong>3. Penggunaan Cookie</strong><br>Sistem kami menggunakan cookie sesional semata-mata untuk menjaga Anda tetap masuk selama berada di dalam aplikasi.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" style="width: 100%; color: var(--accent);" onclick="closeModal('privacyModal')">Tutup Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="rulesModal">
+        <div class="modal-box" style="max-width: 360px;">
+            <div class="modal-content">
+                <h3 class="modal-title" style="text-align: center;">Syarat & Ketentuan Afiliator</h3>
+                <div class="modal-body">
+                    <p>Dengan bergabung sebagai Afiliator NovaPortal, Anda wajib mematuhi aturan ketat berikut:</p>
+                    <ul>
+                        <li><strong>Dilarang Spam:</strong> Tautan hanya boleh dibagikan secara organik ke teman, komunitas, atau media sosial Anda.</li>
+                        <li><strong>Dilarang Akun Ganda (Tuyul):</strong> Mendaftarkan diri sendiri berulang kali menggunakan perangkat atau IP Address yang sama akan menyebabkan <strong>Pemblokiran Permanen</strong>.</li>
+                        <li><strong>Proses Verifikasi:</strong> Setiap pendaftar baru dari tautan Anda akan masuk ke tahap <em>Pengecekan Sistem</em> terlebih dahulu untuk memastikan keaslian aktivitas pengguna tersebut.</li>
+                        <li><strong>Penarikan Komisi:</strong> Komisi afiliasi baru dapat ditarik setelah mencapai batas minimum penarikan Rp 25.000 dengan data rekening yang valid dan sesuai.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" style="width: 100%; color: var(--accent);" onclick="closeModal('rulesModal')">Saya Mengerti & Setuju</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cs-modal-overlay" id="cs-modal-overlay">
+        <div class="cs-header">
+            <button class="cs-back-btn" onclick="closeCSChat()"><i class='bx bx-chevron-left'></i></button>
+            <div class="cs-header-info">
+                <div class="cs-avatar">CS</div>
+                <div class="cs-title-box">
+                    <h3>Pusat Bantuan</h3>
+                    <p><i class='bx bxs-circle' style="font-size: 8px;"></i> Online</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="cs-chat-box" class="cs-body">
+            </div>
+        
+        <div class="cs-footer">
+            <input type="text" id="cs-input" class="cs-input" placeholder="Ketik pesan untuk Admin...">
+            <button onclick="sendCSMessage()" class="cs-send-btn"><i class='bx bxs-send'></i></button>
+        </div>
+    </div>
+
+    <header class="top-header" id="main-header" style="display: none;">
+        <div class="header-brand">
+            <div class="header-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1384 20.1932 10.2052 17.887 10.0211C17.3879 6.64392 14.4759 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01138 11.464 4.03348 11.6908C2.29828 12.3929 1 14.0722 1 16C1 18.2091 2.79086 20 5 20H17.5Z"/>
+                </svg>
+            </div>
+            <div class="header-text">NovaPortal Afiliator Cloud</div>
+        </div>
+        <button class="logout-btn" onclick="openModal('logoutModal')"><i class='bx bx-log-out'></i></button>
+    </header>
+
+    <main class="app-container">
+        <section id="auth" class="page-section active">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+                        <div style="width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); border: 1px solid var(--glass-highlight); display: flex; justify-content: center; align-items: center;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1384 20.1932 10.2052 17.887 10.0211C17.3879 6.64392 14.4759 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01138 11.464 4.03348 11.6908C2.29828 12.3929 1 14.0722 1 16C1 18.2091 2.79086 20 5 20H17.5Z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 id="auth-title">Masuk Akun</h2>
+                    <p id="auth-subtitle">Selamat datang kembali di NovaPortal</p>
+                </div>
+
+                <div class="glass-card" id="form-login">
+                    <div class="input-group">
+                        <label class="input-label">Username / Email (Gmail)</label>
+                        <div class="input-box">
+                            <input type="text" id="log-id" class="input-field" placeholder="Masukkan username/email">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Kata Sandi</label>
+                        <div class="input-box">
+                            <input type="password" id="log-pass" class="input-field" placeholder="Masukkan kata sandi">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="captcha-container" onclick="verifyCaptcha('login')">
+                            <div class="captcha-checkbox-ui" id="captcha-box-ui-login">
+                                <i class='bx bx-check' style="display: none; color: var(--success); font-size: 24px;"></i>
+                                <i class='bx bx-loader-alt bx-spin' style="display: none; color: var(--accent); font-size: 20px;"></i>
+                            </div>
+                            <span class="captcha-text">Saya bukan robot</span>
+                            <div class="captcha-logo">
+                                <i class='bx bx-shield-quarter'></i>
+                                <span>Keamanan</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" id="btn-login" onclick="handleLogin()" style="margin-top: 24px;">Masuk Sekarang</button>
+                    <div class="auth-toggle">
+                        Belum punya akun? <a onclick="toggleAuth('register')">Daftar di sini</a>
+                    </div>
+                </div>
+
+                <div class="glass-card" id="form-register" style="display: none;">
+                    <div class="input-group">
+                        <label class="input-label">Username</label>
+                        <div class="input-box">
+                            <input type="text" id="reg-user" class="input-field" placeholder="Pilih username">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Alamat Email (Gmail)</label>
+                        <div class="input-box">
+                            <input type="email" id="reg-email" class="input-field" placeholder="contoh@gmail.com">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Verifikasi OTP Email</label>
+                        <div class="otp-group">
+                            <div class="input-box" style="flex: 1;">
+                                <input type="number" id="reg-otp" class="input-field" placeholder="Kode 6 digit">
+                            </div>
+                            <button class="btn-otp" id="btn-send-otp" onclick="sendOTP()">Kirim OTP</button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Kata Sandi</label>
+                        <div class="input-box">
+                            <input type="password" id="reg-pass" class="input-field" placeholder="Minimal 8 karakter">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Konfirmasi Kata Sandi</label>
+                        <div class="input-box">
+                            <input type="password" id="reg-conf" class="input-field" placeholder="Ketik ulang sandi">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="captcha-container" onclick="verifyCaptcha('register')">
+                            <div class="captcha-checkbox-ui" id="captcha-box-ui-register">
+                                <i class='bx bx-check' style="display: none; color: var(--success); font-size: 24px;"></i>
+                                <i class='bx bx-loader-alt bx-spin' style="display: none; color: var(--accent); font-size: 20px;"></i>
+                            </div>
+                            <span class="captcha-text">Saya bukan robot</span>
+                            <div class="captcha-logo">
+                                <i class='bx bx-shield-quarter'></i>
+                                <span>Keamanan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="btn-register" onclick="handleRegister()" style="margin-top: 24px;">Daftar Akun</button>
+                    <div class="auth-toggle">
+                        Sudah punya akun? <a onclick="toggleAuth('login')">Masuk di sini</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dasbor" class="page-section">
+            <div class="glass-card">
+                <div class="dash-header"><i class='bx bx-wallet-alt'></i> Total Balance</div>
+                <div class="dash-amount text-gradient" id="dash-balance">Rp 0</div>
+                
+                <div class="dash-stats">
+                    <div class="dash-stat-item">
+                        <div class="dash-stat-icon icon-income"><i class='bx bx-trending-up'></i></div>
+                        <div>
+                            <div class="dash-stat-label">Pendapatan</div>
+                            <div class="dash-stat-val" id="dash-income">Rp 0</div>
+                        </div>
+                    </div>
+                    <div class="dash-stat-item">
+                        <div class="dash-stat-icon icon-aff"><i class='bx bx-network-chart'></i></div>
+                        <div>
+                            <div class="dash-stat-label">Total Jaringan</div>
+                            <div class="dash-stat-val" id="dash-affiliates">0 Orang</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-premium">
+                <i class='bx bxs-error-circle'></i>
+                <div class="alert-content">
+                    <h4>Peringatan Sistem!</h4>
+                    <p>Demi menjaga keamanan ekosistem NovaPortal, seluruh member diwajibkan untuk mematuhi kebijakan afiliasi yang berlaku.</p>
+                    <ul>
+                        <li>Dilarang keras menggunakan <strong>bot / script otomatis</strong>.</li>
+                        <li>Sistem <strong>memantau Alamat IP</strong> secara ketat. Pendaftaran akun ganda pada IP yang sama akan terdeteksi otomatis.</li>
+                        <li>Sanksi pelanggaran adalah <strong>Pemblokiran Permanen</strong> (Banned) tanpa peringatan.</li>
+                        <li>Seluruh saldo pada akun pelanggar akan <strong>dihanguskan</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h2 style="font-size: 15px; margin-bottom: 16px; font-weight: 600;">History Penarikan</h2>
+                <div class="history-list" id="history-container">
+                    </div>
+            </div>
+        </section>
+
+        <section id="afiliator" class="page-section">
+            <div class="glass-card">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                    <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(10,132,255,0.2), rgba(10,132,255,0.05)); border: 1px solid rgba(10,132,255,0.3); box-shadow: 0 4px 12px rgba(10,132,255,0.15);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Kode Referral Anda</div>
+                        <div id="big-ref-code" class="text-gradient" style="font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;">-</div>
+                    </div>
+                </div>
+                <hr style="border: 0; border-top: 1px dashed var(--glass-border); margin: 0 0 20px 0;">
+                <div style="color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-left: 2px;">Tautan URL Referal</div>
+                <div class="link-box" style="margin-bottom: 16px;">
+                    <input type="text" class="link-input" id="myRefLink" value="https://miner.mineverse-chain.my.id/?ref=..." readonly style="text-align: left; padding-left: 4px;">
+                </div>
+                <div class="action-buttons" style="margin-bottom: 0;">
+                    <button class="btn-half btn-copy" onclick="copyRefLink()"><i class='bx bx-copy'></i> Salin Link</button>
+                    <button class="btn-half btn-share" onclick="shareRefLink()"><i class='bx bxl-whatsapp'></i> Bagikan</button>
+                </div>
+            </div>
+
+            <div class="dash-stats" style="margin-bottom: 16px;">
+                <div class="dash-stat-item" style="background: linear-gradient(135deg, rgba(50, 215, 75, 0.15) 0%, rgba(50, 215, 75, 0.05) 100%); border-color: rgba(50, 215, 75, 0.3);">
+                    <div class="dash-stat-icon icon-green"><i class='bx bx-check-circle'></i></div>
+                    <div>
+                        <div class="dash-stat-label" style="color: rgba(255,255,255,0.8);">Afiliator Sukses</div>
+                        <div class="dash-stat-val" id="box-aff-success">0</div>
+                    </div>
+                </div>
+                <div class="dash-stat-item" style="background: linear-gradient(135deg, rgba(255, 159, 10, 0.15) 0%, rgba(255, 159, 10, 0.05) 100%); border-color: rgba(255, 159, 10, 0.3);">
+                    <div class="dash-stat-icon icon-orange"><i class='bx bx-time-five'></i></div>
+                    <div>
+                        <div class="dash-stat-label" style="color: rgba(255,255,255,0.8);">Afiliator Pending</div>
+                        <div class="dash-stat-val" id="box-aff-pending">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-success">
+                <i class='bx bx-check-shield'></i>
+                <div class="alert-content">
+                    <h4>Cara Kerja & Aturan Afiliasi</h4>
+                    <p style="margin-bottom: 8px;"><strong>Langkah-langkah mendapatkan komisi:</strong></p>
+                    <ul style="margin-bottom: 12px;">
+                        <li><strong>1. Bagikan Tautan:</strong> Tekan tombol <em>Salin Link</em> atau <em>Bagikan</em> untuk mendistribusikan tautan unik Anda.</li>
+                        <li><strong>2. Pendaftaran:</strong> Sistem akan melacak setiap pengguna yang mengakses dan mendaftar menggunakan tautan tersebut.</li>
+                        <li><strong>3. Tahap Pengecekan:</strong> Setiap pengguna baru akan berstatus <em>Pending</em> selama sistem kami meninjau dan memvalidasi aktivitas pengguna tersebut.</li>
+                        <li><strong>4. Komisi Cair:</strong> Setelah pengguna dinyatakan lolos verifikasi oleh sistem, komisi sebesar <strong>Rp 500</strong> akan ditambahkan secara otomatis ke saldo Anda.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 14px; margin-bottom: 16px; font-weight: 600;"><i class='bx bx-group' style="color: var(--accent); margin-right: 4px;"></i> Daftar Pengguna</h3>
+                <div class="history-list" id="downline-list-container">
+                    <p class="empty-state">Belum ada yang mendaftar melalui tautan Anda.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="withdraw" class="page-section">
+            <div class="glass-card">
+                <h2 style="font-size: 16px; margin-bottom: 20px; font-weight: 600;">Formulir Penarikan</h2>
+                
+                <div class="input-group">
+                    <label class="input-label">Metode Pembayaran</label>
+                    <div class="input-box" onclick="openBankSheet()" style="cursor: pointer;">
+                        <button class="custom-select-btn" id="wd-method-btn" type="button">
+                            <span id="selected-bank-text">Pilih Metode</span>
+                            <i class='bx bx-chevron-down' style="font-size: 20px;"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="wd-method" value="">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Nomor Rekening / E-Wallet</label>
+                    <div class="input-box">
+                        <input type="number" class="input-field" id="wd-norek" placeholder="Contoh: 08123456789" oninput="updateSummary()">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Nama Pemilik Rekening</label>
+                    <div class="input-box">
+                        <input type="text" class="input-field" id="wd-name" placeholder="Sesuai aplikasi/bank" oninput="updateSummary()">
+                    </div>
+                </div>
+                
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label class="input-label">Jumlah Penarikan (Min. Rp 25.000)</label>
+                    <div class="input-box input-amount-wrap">
+                        <span>Rp</span>
+                        <input type="number" class="input-field input-amount" id="wd-amount" placeholder="0" oninput="updateSummary()">
+                    </div>
+                    <div id="amount-warning" class="warning-text">
+                        <i class='bx bx-error-circle'></i> Minimal penarikan adalah Rp 25.000
+                    </div>
+                </div>
+
+                <div class="wd-summary" id="wd-summary-box">
+                    <div class="summary-row">
+                        <span>Metode</span>
+                        <span class="summary-val" id="sum-method">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>No. Rekening</span>
+                        <span class="summary-val" id="sum-norek">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Atas Nama</span>
+                        <span class="summary-val" id="sum-name">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Jumlah Penarikan</span>
+                        <span class="summary-val" id="sum-amount">Rp 0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Biaya Admin</span>
+                        <span class="summary-val" style="color: var(--danger);">Rp 1.500</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Total Dipotong</span>
+                        <span class="summary-val" id="sum-total">Rp 0</span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="btn-tarik" disabled onclick="prosesTarik()">
+                    Tarik Sekarang <i class='bx bx-right-arrow-alt'></i>
+                </button>
+            </div>
+
+            <div class="alert-info">
+                <i class='bx bx-info-circle'></i>
+                <div class="alert-content">
+                    <h4>Aturan Penarikan Saldo</h4>
+                    <p>Mohon perhatikan ketentuan berikut sebelum melakukan penarikan:</p>
+                    <ul>
+                        <li>Batas minimum penarikan adalah <strong>Rp 25.000</strong>.</li>
+                        <li>Terdapat potongan <strong>Biaya Admin sebesar Rp 1.500</strong>.</li>
+                        <li>Proses penarikan memakan waktu <strong>1x24 Jam kerja</strong>.</li>
+                        <li>Pastikan data rekening Anda <strong>sudah benar</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="konten" class="page-section">
+            
+            <div class="alert-info" style="margin-bottom: 20px;">
+                <i class='bx bx-bulb'></i>
+                <div class="alert-content">
+                    <h4>Senjata Rahasia Afiliator Sukses!</h4>
+                    <p>Mau komisi mengalir deras setiap hari? Gunakan video-video viral di bawah ini! Konten ini sudah didesain khusus agar penonton langsung penasaran dan mendaftar.</p>
+                    
+                    <p style="margin-top: 8px;"><em>Video yang di bawah adalah contoh, kalian bisa buat konten sendiri dari link <a href="https://miner.mineverse-chain.my.id/" target="_blank" style="color: #fff; text-decoration: underline;">https://miner.mineverse-chain.my.id/</a>. Selamat berkreasi!</em></p>
+                    
+                    <p style="margin-top: 8px; font-weight: 600;">🔥 Cara Pakai:</p>
+                    <ul>
+                        <li><strong>1.</strong> Tonton & Rekam layar (Screen Record) konten yang paling menarik.</li>
+                        <li><strong>2.</strong> Upload ke TikTok, IG Reels, atau YT Shorts dengan sound viral saat ini.</li>
+                        <li><strong>3.</strong> <strong>WAJIB</strong> taruh Link Referral-mu di bio profil atau sematkan di kolom komentar!</li>
+                        <li><strong>4.</strong> Semakin rajin kamu posting, semakin besar peluang panen komisi! 🚀</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;"><i class='bx bxs-video' style="color: var(--accent); margin-right: 4px;"></i> Template Konten Promosi 1</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Cocok untuk menarik perhatian pengguna baru dengan cepat.</p>
+                <div class="video-container" style="position:relative; width:100%; height:0px; padding-bottom:177.778%; border-radius: 12px; overflow: hidden; border: 0.5px solid var(--glass-border);">
+                    <div class="vid-overlay" onclick="playVid(this)">
+                        <i class='bx bx-play-circle'></i>
+                        <span>Putar Video</span>
+                    </div>
+                    <iframe allow="fullscreen; autoplay" loading="lazy" src="" data-src="https://streamable.com/e/47t69w?" style="border:none; width:100%; height:100%; position:absolute; left:0px; top:0px; overflow:hidden;"></iframe>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;"><i class='bx bxs-video' style="color: var(--accent); margin-right: 4px;"></i> Template Konten Promosi 2</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Fokus pada cara mudah bergabung dan mulai mendapatkan cuan.</p>
+                <div class="video-container" style="position:relative; width:100%; height:0px; padding-bottom:177.778%; border-radius: 12px; overflow: hidden; border: 0.5px solid var(--glass-border);">
+                    <div class="vid-overlay" onclick="playVid(this)">
+                        <i class='bx bx-play-circle'></i>
+                        <span>Putar Video</span>
+                    </div>
+                    <iframe allow="fullscreen; autoplay" loading="lazy" src="" data-src="https://streamable.com/e/q6rqll?" style="border:none; width:100%; height:100%; position:absolute; left:0px; top:0px; overflow:hidden;"></iframe>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;"><i class='bx bxs-video' style="color: var(--accent); margin-right: 4px;"></i> Template Konten Promosi 3</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Konten pembuktian atau testimoni penarikan saldo.</p>
+                <div class="video-container" style="position:relative; width:100%; height:0px; padding-bottom:177.778%; border-radius: 12px; overflow: hidden; border: 0.5px solid var(--glass-border);">
+                    <div class="vid-overlay" onclick="playVid(this)">
+                        <i class='bx bx-play-circle'></i>
+                        <span>Putar Video</span>
+                    </div>
+                    <iframe allow="fullscreen; autoplay" loading="lazy" src="" data-src="https://streamable.com/e/8xvcni?" style="border:none; width:100%; height:100%; position:absolute; left:0px; top:0px; overflow:hidden;"></iframe>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px;"><i class='bx bxs-video' style="color: var(--accent); margin-right: 4px;"></i> Template Konten Promosi 4</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Video gaya santai yang cocok untuk Story IG atau WhatsApp.</p>
+                <div class="video-container" style="position:relative; width:100%; height:0px; padding-bottom:177.778%; border-radius: 12px; overflow: hidden; border: 0.5px solid var(--glass-border);">
+                    <div class="vid-overlay" onclick="playVid(this)">
+                        <i class='bx bx-play-circle'></i>
+                        <span>Putar Video</span>
+                    </div>
+                    <iframe allow="fullscreen; autoplay" loading="lazy" src="" data-src="https://streamable.com/e/uwbawc?" style="border:none; width:100%; height:100%; position:absolute; left:0px; top:0px; overflow:hidden;"></iframe>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="profil" class="page-section">
+            <div class="profile-header">
+                <div class="profile-avatar" id="prof-avatar">N</div>
+                <div class="profile-info">
+                    <h3 id="prof-username">User</h3>
+                    <p id="prof-email">user@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="glass-card" style="padding: 10px 20px;">
+                <div class="menu-list">
+                    <div class="menu-item" onclick="openModal('privacyModal')">
+                        <div class="menu-left">
+                            <div class="menu-icon icon-blue"><i class='bx bx-shield-quarter'></i></div>
+                            <span class="menu-text">Kebijakan Privasi</span>
+                        </div>
+                        <div class="menu-right"><i class='bx bx-chevron-right'></i></div>
+                    </div>
+                    <div class="menu-item" onclick="openModal('rulesModal')">
+                        <div class="menu-left">
+                            <div class="menu-icon icon-orange"><i class='bx bx-file'></i></div>
+                            <span class="menu-text">Peraturan Afiliasi</span>
+                        </div>
+                        <div class="menu-right"><i class='bx bx-chevron-right'></i></div>
+                    </div>
+                    <div class="menu-item" onclick="openCSChat()">
+                        <div class="menu-left">
+                            <div class="menu-icon icon-green"><i class='bx bx-support'></i></div>
+                            <span class="menu-text">Pusat Bantuan (CS)</span>
+                        </div>
+                        <div class="menu-right"><i class='bx bx-chevron-right'></i></div>
+                    </div>
+                    <div class="menu-item" onclick="showToast('Pengaturan Akun sedang dalam perbaikan', 'info')">
+                        <div class="menu-left">
+                            <div class="menu-icon icon-gray"><i class='bx bx-cog'></i></div>
+                            <span class="menu-text">Pengaturan Akun</span>
+                        </div>
+                        <div class="menu-right"><i class='bx bx-chevron-right'></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav" id="main-nav">
+        <div class="nav-item active" id="nav-dasbor" onclick="switchPage(event, 'dasbor')"><i class='bx bxs-dashboard'></i><span>Dasbor</span></div>
+        <div class="nav-item" onclick="switchPage(event, 'afiliator')"><i class='bx bx-network-chart'></i><span>Afiliator</span></div>
+        <div class="nav-item" onclick="switchPage(event, 'withdraw')"><i class='bx bx-wallet-alt'></i><span>Withdraw</span></div>
+        <div class="nav-item" onclick="switchPage(event, 'konten')"><i class='bx bx-layer'></i><span>Konten</span></div>
+        <div class="nav-item" onclick="switchPage(event, 'profil')"><i class='bx bx-user'></i><span>Profil</span></div>
+    </nav>
+
+    <div class="sheet-overlay" id="bank-sheet-overlay" onclick="closeBankSheet()"></div>
+    <div class="bottom-sheet" id="bank-sheet">
+        <div class="sheet-header">
+            <h3>Pilih Metode Penarikan</h3>
+            <button class="sheet-close" onclick="closeBankSheet()">Batal</button>
+        </div>
+        <div class="sheet-options">
+            <div class="sheet-option" onclick="selectBank('DANA')"><i class='bx bx-wallet'></i> DANA</div>
+            <div class="sheet-option" onclick="selectBank('GoPay')"><i class='bx bx-wallet'></i> GoPay</div>
+            <div class="sheet-option" onclick="selectBank('OVO')"><i class='bx bx-wallet'></i> OVO</div>
+            <div class="sheet-option" onclick="selectBank('SeaBank')"><i class='bx bxs-bank'></i> SeaBank</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { initializeFirestore, getFirestore, collection, query, where, getDocs, addDoc, doc, updateDoc, arrayUnion, onSnapshot, getDoc, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfigUtama = {
+            apiKey: "AIzaSyCEpVoxLkiFMAsloIH3NRFCCmUi8DpS9v0",
+            authDomain: "novaportal-c8458.firebaseapp.com",
+            projectId: "novaportal-c8458",
+            storageBucket: "novaportal-c8458.firebasestorage.app",
+            messagingSenderId: "161766948425",
+            appId: "1:161766948425:web:717c6fcc3d887e96aa0998"
+        };
+        const appUtama = initializeApp(firebaseConfigUtama, "appUtama");
+        const db = initializeFirestore(appUtama, { experimentalForceLongPolling: true });
+
+        const firebaseConfigCS = {
+            apiKey: "AIzaSyBg4UcANepqkqPaz8UD149ekyk7jliNyQY",
+            authDomain: "novaportal-7ceab.firebaseapp.com",
+            projectId: "novaportal-7ceab",
+            storageBucket: "novaportal-7ceab.firebasestorage.app",
+            messagingSenderId: "135194221374",
+            appId: "1:135194221374:web:66c4339c5c06dd2a2faa6f"
+        };
+        const appCS = initializeApp(firebaseConfigCS, "appCS");
+        const dbCS = getFirestore(appCS);
+        
+        window.isCaptchaLoginVerified = false;
+        window.isCaptchaRegisterVerified = false;
+        let isVerifyingLogin = false;
+        let isVerifyingRegister = false;
+        
+        let sentOTP = null;
+        let otpExpired = true;
+        
+        let pollingInterval = null;
+        let csUnsubscribe = null;
+
+        // FUNGSI ANIMASI DYNAMIC ISLAND
+        window.showDynamicIsland = function(message) {
+            const island = document.getElementById('dynamicIsland');
+            const islandText = document.getElementById('dynamicIslandText');
+            
+            islandText.innerText = message;
+            island.classList.add('show');
+            
+            // Sembunyikan setelah 3.5 detik
+            setTimeout(() => {
+                island.classList.remove('show');
+            }, 3500);
+        };
+
+        // FUNGSI MEMUTAR 1 VIDEO SAJA & MEMANGGIL DYNAMIC ISLAND
+        window.playVid = function(overlayElement) {
+            // Hentikan video lain yang mungkin menyala
+            document.querySelectorAll('.video-container').forEach(container => {
+                container.querySelector('.vid-overlay').style.display = 'flex';
+                container.querySelector('iframe').src = ''; 
+            });
+
+            // Putar video yang diklik
+            const myContainer = overlayElement.parentElement;
+            const myIframe = myContainer.querySelector('iframe');
+            
+            overlayElement.style.display = 'none';
+            // Muat video tanpa parameter autoplay agar suara tidak dimute
+            myIframe.src = myIframe.getAttribute('data-src'); 
+
+            // Munculkan notifikasi instruksi ke user (Tanpa Emoji)
+            window.showDynamicIsland("Ketuk sekali lagi untuk memutar suara!");
+        };
+        // -------------------------------------------------------------
+
+        window.onload = function() {
+            const savedUser = localStorage.getItem('novaUser');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                loadDashboard(userData);
+            }
+        };
+
+        window.verifyCaptcha = function(type) {
+            let isVerified = type === 'login' ? window.isCaptchaLoginVerified : window.isCaptchaRegisterVerified;
+            let isVerifying = type === 'login' ? isVerifyingLogin : isVerifyingRegister;
+            if (isVerified || isVerifying) return; 
+
+            if (type === 'login') isVerifyingLogin = true;
+            else isVerifyingRegister = true;
+
+            const boxUi = document.getElementById(`captcha-box-ui-${type}`);
+            const checkIcon = boxUi.querySelector('.bx-check');
+            const spinnerIcon = boxUi.querySelector('.bx-loader-alt');
+
+            boxUi.style.borderColor = 'transparent'; 
+            spinnerIcon.style.display = 'block';
+
+            setTimeout(() => {
+                spinnerIcon.style.display = 'none';
+                checkIcon.style.display = 'block';
+                if (type === 'login') {
+                    window.isCaptchaLoginVerified = true;
+                    isVerifyingLogin = false;
+                } else {
+                    window.isCaptchaRegisterVerified = true;
+                    isVerifyingRegister = false;
+                }
+            }, 5000); 
+        };
+
+        window.toggleAuth = function(mode) {
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+
+            if (mode === 'register') {
+                formLogin.style.display = 'none';
+                formRegister.style.display = 'block';
+                title.innerText = 'Daftar Akun';
+                subtitle.innerText = 'Bergabung dengan NovaPortal Afiliator';
+            } else {
+                formRegister.style.display = 'none';
+                formLogin.style.display = 'block';
+                title.innerText = 'Masuk Akun';
+                subtitle.innerText = 'Selamat datang kembali di NovaPortal';
+            }
+        };
+
+        window.handleLogin = async function() {
+            let identifier = document.getElementById('log-id').value.trim();
+            if(identifier.includes('@')) {
+                identifier = identifier.toLowerCase();
+            }
+            const password = document.getElementById('log-pass').value;
+
+            if (!identifier || !password) return window.showToast('Harap isi semua kolom!', 'error');
+            if (!window.isCaptchaLoginVerified) return window.showToast('Verifikasi Captcha dulu!', 'error');
+
+            const btn = document.getElementById('btn-login');
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Memeriksa...";
+            btn.disabled = true;
+
+            try {
+                const usersRef = collection(db, "users");
+                const searchField = identifier.includes('@') ? 'email' : 'username';
+                const q = query(usersRef, where(searchField, "==", identifier), where("password", "==", btoa(password)));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    window.showToast('Akun tidak ditemukan atau sandi salah!', 'error');
+                } else {
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+                    userData.id = userDoc.id; 
+                    
+                    localStorage.setItem('novaUser', JSON.stringify(userData));
+                    window.showToast('Login berhasil! Memuat dasbor...', 'success');
+                    setTimeout(() => loadDashboard(userData), 1000);
+                }
+            } catch (error) {
+                window.showToast('Terjadi kesalahan jaringan.', 'error');
+                console.log(error);
+            }
+            
+            btn.innerHTML = "Masuk Sekarang";
+            btn.disabled = false;
+        };
+
+        window.sendOTP = async function() {
+            const email = document.getElementById('reg-email').value.trim().toLowerCase();
+            
+            if(!email.includes('@gmail.com')) return window.showToast('Gunakan email @gmail.com valid!', 'error');
+
+            const btn = document.getElementById('btn-send-otp');
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+            btn.disabled = true;
+
+            try {
+                const configRef = doc(db, "settings", "emailjs");
+                const configSnap = await getDoc(configRef);
+                
+                if (!configSnap.exists()) {
+                    window.showToast("Server Email belum siap!", "error");
+                    btn.innerHTML = "Kirim OTP"; btn.disabled = false; return;
+                }
+                
+                const emailConfig = configSnap.data();
+                if(!emailConfig.publicKey || !emailConfig.serviceId || !emailConfig.templateId) {
+                    window.showToast("Data Server Email tidak lengkap!", "error");
+                    btn.innerHTML = "Kirim OTP"; btn.disabled = false; return;
+                }
+
+                emailjs.init(emailConfig.publicKey);
+                
+                sentOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                otpExpired = false;
+                
+                const now = new Date();
+                now.setMinutes(now.getMinutes() + 15);
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ' WIB';
+
+                await emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
+                    reply_to: email, 
+                    email: email,
+                    otp: sentOTP,
+                    time: timeStr
+                });
+
+                window.showToast('OTP telah dikirim ke email Anda', 'success');
+                btn.innerHTML = "Terkirim";
+                setTimeout(() => { otpExpired = true; sentOTP = null; btn.innerHTML = "Kirim OTP"; btn.disabled = false; }, 15 * 60000);
+
+            } catch(error) {
+                console.error(error);
+                window.showToast('Gagal mengirim email OTP', 'error');
+                btn.innerHTML = "Kirim OTP";
+                btn.disabled = false;
+            }
+        };
+
+        window.handleRegister = async function() {
+            const user = document.getElementById('reg-user').value.trim();
+            const email = document.getElementById('reg-email').value.trim().toLowerCase(); 
+            const inputOtp = document.getElementById('reg-otp').value.trim();
+            const pass = document.getElementById('reg-pass').value;
+            const conf = document.getElementById('reg-conf').value;
+
+            if (!user || !email || !inputOtp || !pass || !conf) return window.showToast('Semua kolom wajib diisi!', 'error');
+            if (pass !== conf) return window.showToast('Kata sandi tidak cocok!', 'error');
+            if (pass.length < 8) return window.showToast('Minimal sandi 8 karakter!', 'error');
+            if (!window.isCaptchaRegisterVerified) return window.showToast('Verifikasi Captcha dulu!', 'error');
+            
+            if (otpExpired || sentOTP === null) return window.showToast('OTP kadaluarsa, kirim ulang!', 'error');
+            if (inputOtp !== sentOTP) return window.showToast('Kode OTP salah!', 'error');
+
+            const btn = document.getElementById('btn-register');
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Memproses...";
+            btn.disabled = true;
+
+            try {
+                const usersRef = collection(db, "users");
+                const qEmail = query(usersRef, where("email", "==", email));
+                const snapEmail = await getDocs(qEmail);
+                if (!snapEmail.empty) {
+                    window.showToast('Email sudah terdaftar!', 'error');
+                    btn.innerHTML = "Daftar Akun"; btn.disabled = false; return;
+                }
+
+                const qUser = query(usersRef, where("username", "==", user));
+                const snapUser = await getDocs(qUser);
+                if (!snapUser.empty) {
+                    window.showToast('Username sudah dipakai!', 'error');
+                    btn.innerHTML = "Daftar Akun"; btn.disabled = false; return;
+                }
+
+                const generatedRefCode = "REF" + Math.random().toString(36).substring(2, 9).toUpperCase();
+
+                await addDoc(usersRef, {
+                    username: user,
+                    email: email, 
+                    password: btoa(pass), 
+                    joinedAt: new Date().toISOString(),
+                    balance: 0,
+                    income: 0,
+                    affiliates: 0,
+                    pending_affiliates: 0,
+                    refCode: generatedRefCode,
+                    withdrawals: [],
+                    downlines: [] 
+                });
+
+                window.showToast('Pendaftaran Berhasil! Silakan masuk.', 'success');
+                setTimeout(() => window.toggleAuth('login'), 2000);
+            } catch (error) {
+                window.showToast('Gagal mendaftar, coba lagi.', 'error');
+                console.log(error);
+            }
+
+            btn.innerHTML = "Daftar Akun";
+            btn.disabled = false;
+        };
+
+        function renderDashboardUI(userData) {
+            document.getElementById('prof-username').innerText = userData.username;
+            document.getElementById('prof-email').innerText = userData.email;
+            document.getElementById('prof-avatar').innerText = userData.username.charAt(0).toUpperCase();
+            
+            const userBal = userData.balance || 0;
+            const userInc = userData.income || 0;
+            const userAff = userData.affiliates || 0;
+            const pendingAff = userData.pending_affiliates || 0;
+            
+            document.getElementById('dash-balance').innerText = `Rp ${userBal.toLocaleString('id-ID')}`;
+            document.getElementById('dash-income').innerText = `Rp ${userInc.toLocaleString('id-ID')}`;
+            document.getElementById('dash-affiliates').innerText = `${userAff + pendingAff} Orang`;
+            
+            document.getElementById('box-aff-success').innerText = userAff;
+            document.getElementById('box-aff-pending').innerText = pendingAff;
+
+            const myRef = userData.refCode || "KODE_ERROR";
+            document.getElementById('big-ref-code').innerText = myRef;
+            document.getElementById('myRefLink').value = `https://miner.mineverse-chain.my.id/?ref=${myRef}`;
+
+            const listDownlines = document.getElementById('downline-list-container');
+            listDownlines.innerHTML = '';
+            
+            if (userData.downlines && userData.downlines.length > 0) {
+                userData.downlines.forEach(dl => {
+                    let iconClass = dl.status === 'success' ? 'success' : 'pending';
+                    let iconBx = dl.status === 'success' ? 'bx-check' : 'bx-time-five';
+                    let statusText = dl.status === 'success' ? 'Sukses diverifikasi' : 'Dalam Pengecekan Sistem';
+                    
+                    listDownlines.innerHTML += `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <div class="history-icon ${iconClass}"><i class='bx ${iconBx}'></i></div>
+                                <div class="history-text">
+                                    <h5>${dl.username}</h5>
+                                    <p>${statusText}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                listDownlines.innerHTML = `<p class="empty-state">Belum ada yang mendaftar melalui tautan Anda.</p>`;
+            }
+
+            const historyContainer = document.getElementById('history-container');
+            historyContainer.innerHTML = ''; 
+            
+            if (userData.withdrawals && userData.withdrawals.length > 0) {
+                const sortedHistory = userData.withdrawals.sort((a,b) => new Date(b.date) - new Date(a.date));
+                sortedHistory.forEach(wd => {
+                    const d = new Date(wd.date);
+                    const dateStr = `${d.getDate()} ${d.toLocaleString('id-ID', {month:'short'})} ${d.getFullYear()}`;
+                    
+                    let iconClass = wd.status === 'Berhasil' ? 'success' : (wd.status === 'Ditolak' ? 'danger' : 'pending');
+                    let iconBx = wd.status === 'Berhasil' ? 'bx-check' : (wd.status === 'Ditolak' ? 'bx-x' : 'bx-time-five');
+
+                    historyContainer.innerHTML += `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <div class="history-icon ${iconClass}"><i class='bx ${iconBx}'></i></div>
+                                <div class="history-text">
+                                    <h5>Penarikan ${wd.method}</h5>
+                                    <p>${dateStr} • ${wd.status}</p>
+                                </div>
+                            </div>
+                            <div class="history-amount text-gradient">-Rp ${wd.amount.toLocaleString('id-ID')}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                historyContainer.innerHTML = `<p class="empty-state">Belum ada riwayat penarikan.</p>`;
+            }
+        }
+
+        function startPolling(userData) {
+            if (pollingInterval) clearInterval(pollingInterval);
+            
+            pollingInterval = setInterval(async () => {
+                if (document.hidden) return; 
+                
+                try {
+                    const userDocRef = doc(db, "users", userData.id);
+                    const snap = await getDoc(userDocRef);
+                    if (snap.exists()) {
+                        const freshData = snap.data();
+                        freshData.id = snap.id;
+                        
+                        const oldData = JSON.parse(localStorage.getItem('novaUser'));
+                        if (oldData && freshData.balance > oldData.balance) {
+                            window.showToast("Berhasil! 1 Referal tervalidasi. Saldo Anda +Rp 500", "success");
+                        }
+                        
+                        localStorage.setItem('novaUser', JSON.stringify(freshData));
+                        renderDashboardUI(freshData);
+                    }
+                } catch (e) {
+                    console.log("Polling terganggu jaringan:", e);
+                }
+            }, 60000); 
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+        function loadDashboard(userData) {
+            document.getElementById('auth').classList.remove('active');
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('main-nav').classList.add('active');
+            document.getElementById('dasbor').classList.add('active');
+            
+            renderDashboardUI(userData);
+
+            if (userData.id) {
+                startPolling(userData);
+            }
+            
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('nav-dasbor').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
+
+        window.openModal = function(id) { document.getElementById(id).classList.add('active'); }
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); }
+
+        window.executeLogout = function() {
+            window.closeModal('logoutModal');
+            
+            stopPolling();
+            if(csUnsubscribe) {
+                csUnsubscribe();
+                csUnsubscribe = null;
+            }
+
+            localStorage.removeItem('novaUser'); 
+            window.showToast('Berhasil keluar dari akun.', 'info');
+            
+            setTimeout(() => {
+                document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active'));
+                document.getElementById('main-header').style.display = 'none';
+                document.getElementById('main-nav').classList.remove('active');
+                
+                window.isCaptchaLoginVerified = false;
+                const loginBoxUi = document.getElementById('captcha-box-ui-login');
+                loginBoxUi.style.borderColor = 'var(--text-muted)';
+                loginBoxUi.querySelector('.bx-check').style.display = 'none';
+                loginBoxUi.querySelector('.bx-loader-alt').style.display = 'none';
+
+                document.getElementById('auth').classList.add('active');
+                window.toggleAuth('login');
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            }, 1000);
+        };
+
+        window.switchPage = function(event, pageId) {
+            let target;
+            if(event && event.currentTarget) {
+                target = event.currentTarget;
+                if (target.classList.contains('active')) return;
+            } else {
+                target = document.getElementById('nav-dasbor'); 
+            }
+
+            // HAPUS VIDEO SAAT PINDAH MENU (TIDAK ADA LAG & TIDAK BOCOR SUARA)
+            document.querySelectorAll('.video-container').forEach(container => {
+                container.querySelector('.vid-overlay').style.display = 'flex';
+                container.querySelector('iframe').src = '';
+            });
+
+            document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            target.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        };
+
+        window.showToast = function(message, type = 'success') {
+            const toast = document.getElementById('customToast');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            document.getElementById('toastMessage').innerText = message;
+            
+            toast.className = 'toast';
+            if (type === 'error') {
+                toast.classList.add('error');
+                toastIcon.className = 'bx bxs-error-circle';
+            } else if (type === 'info') {
+                toast.classList.add('info');
+                toastIcon.className = 'bx bx-info-circle';
+            } else {
+                toast.classList.add('success');
+                toastIcon.className = 'bx bxs-check-circle';
+            }
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        };
+
+        window.copyRefLink = function() {
+            const linkInput = document.getElementById('myRefLink');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                window.showToast("Tautan berhasil disalin!", "success");
+            }).catch(() => {
+                window.showToast("Gagal menyalin tautan.", "error");
+            });
+        };
+
+        window.shareRefLink = function() {
+            const linkData = document.getElementById('myRefLink').value;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mineverse.chain',
+                    text: 'Ayo gabung di Mineverse.chain! Mulai mining Bitcoin sekarang dan dapatkan profit harian. Daftar melalui tautan ini!',
+                    url: linkData
+                }).catch((error) => {});
+            } else {
+                window.showToast('Peramban tidak mendukung fitur bagikan.', 'error');
+            }
+        };
+
+        window.openCSChat = function() {
+            const userDataStr = localStorage.getItem('novaUser');
+            if(!userDataStr) return window.showToast('Sesi tidak valid, silakan login ulang', 'error');
+            const userData = JSON.parse(userDataStr);
+
+            document.getElementById('cs-modal-overlay').classList.add('active');
+            const chatBox = document.getElementById('cs-chat-box');
+            chatBox.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 20px;">Memuat obrolan dengan admin...</div>`;
+
+            updateDoc(doc(dbCS, "chat_sessions", userData.id), { unreadUser: 0 }).catch(e => console.log("Init CS"));
+
+            const q = query(collection(dbCS, `chats/${userData.id}/messages`), orderBy("timestamp", "asc"));
+            
+            csUnsubscribe = onSnapshot(q, (snapshot) => {
+                chatBox.innerHTML = '';
+                
+                if(snapshot.empty) {
+                    chatBox.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 20px;">Kirim pesan pertamamu ke admin, kami siap membantu!</div>`;
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const d = new Date(msg.timestamp);
+                    const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+                    
+                    const isMe = msg.sender === 'user';
+                    const bubbleClass = isMe ? 'chat-me' : 'chat-admin-reply';
+                    
+                    chatBox.innerHTML += `
+                        <div class="chat-bubble ${bubbleClass}">
+                            <div>${msg.text}</div>
+                            <div class="chat-time">${timeStr}</div>
+                        </div>
+                    `;
+                });
+                
+                setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 100);
+            });
+        };
+
+        window.closeCSChat = function() {
+            document.getElementById('cs-modal-overlay').classList.remove('active');
+            if(csUnsubscribe) { csUnsubscribe(); csUnsubscribe = null; }
+        };
+
+        window.sendCSMessage = async function() {
+            const input = document.getElementById('cs-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const userData = JSON.parse(localStorage.getItem('novaUser'));
+            if(!userData) return;
+
+            input.value = ''; 
+            const timestamp = new Date().getTime();
+
+            try {
+                await addDoc(collection(dbCS, `chats/${userData.id}/messages`), {
+                    sender: 'user',
+                    text: text,
+                    timestamp: timestamp
+                });
+                
+                await setDoc(doc(dbCS, "chat_sessions", userData.id), {
+                    username: userData.username,
+                    lastMessage: text,
+                    timestamp: timestamp,
+                    unreadAdmin: 1
+                }, { merge: true });
+
+            } catch(e) {
+                console.error(e);
+                window.showToast("Gagal mengirim pesan", "error");
+            }
+        };
+
+        window.openBankSheet = function() {
+            document.getElementById('bank-sheet-overlay').classList.add('active');
+            document.getElementById('bank-sheet').classList.add('active');
+        };
+
+        window.closeBankSheet = function() {
+            document.getElementById('bank-sheet').classList.remove('active');
+            document.getElementById('bank-sheet-overlay').classList.remove('active');
+        };
+
+        window.selectBank = function(bankName) {
+            document.getElementById('selected-bank-text').innerText = bankName;
+            document.getElementById('selected-bank-text').style.color = "#ffffff"; 
+            document.getElementById('wd-method').value = bankName;
+            window.closeBankSheet();
+            window.updateSummary(); 
+        };
+
+        window.updateSummary = function() {
+            const method = document.getElementById('wd-method').value;
+            const norek = document.getElementById('wd-norek').value;
+            const name = document.getElementById('wd-name').value;
+            const amountInput = document.getElementById('wd-amount').value;
+            
+            const amount = parseInt(amountInput) || 0;
+            const adminFee = 1500;
+            const minimumWd = 25000;
+            
+            const summaryBox = document.getElementById('wd-summary-box');
+            const btnTarik = document.getElementById('btn-tarik');
+            const warningText = document.getElementById('amount-warning');
+
+            if (amount > 0 && amount < minimumWd) {
+                warningText.style.display = 'flex';
+            } else {
+                warningText.style.display = 'none';
+            }
+
+            if (amount >= minimumWd) {
+                summaryBox.style.display = 'block';
+                document.getElementById('sum-method').innerText = method ? method : "Belum dipilih";
+                document.getElementById('sum-norek').innerText = norek ? norek : "Belum diisi";
+                document.getElementById('sum-name').innerText = name ? name : "Belum diisi";
+                document.getElementById('sum-amount').innerText = "Rp " + amount.toLocaleString('id-ID');
+                
+                const total = amount + adminFee;
+                document.getElementById('sum-total').innerText = "Rp " + total.toLocaleString('id-ID');
+
+                if (method && norek.length > 3 && name.length > 2) {
+                    btnTarik.disabled = false;
+                } else {
+                    btnTarik.disabled = true;
+                }
+            } else {
+                summaryBox.style.display = 'none';
+                btnTarik.disabled = true;
+            }
+        };
+
+        window.prosesTarik = async function() {
+            const userDataStr = localStorage.getItem('novaUser');
+            if(!userDataStr) return window.showToast('Sesi tidak valid, silakan login ulang', 'error');
+            
+            const userData = JSON.parse(userDataStr);
+            const method = document.getElementById('wd-method').value;
+            const amount = parseInt(document.getElementById('wd-amount').value);
+            const adminFee = 1500;
+            const totalDeduct = amount + adminFee;
+
+            if((userData.balance || 0) < totalDeduct) {
+                return window.showToast('Maaf, Saldo Anda tidak mencukupi!', 'error');
+            }
+
+            const btn = document.getElementById('btn-tarik');
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Memproses...";
+            btn.disabled = true;
+
+            try {
+                const userRef = doc(db, "users", userData.id);
+                const newWithdrawal = {
+                    method: method,
+                    amount: amount,
+                    status: 'Menunggu',
+                    date: new Date().toISOString()
+                };
+
+                await updateDoc(userRef, {
+                    balance: userData.balance - totalDeduct,
+                    withdrawals: arrayUnion(newWithdrawal)
+                });
+
+                window.showToast(`Penarikan ${method} Rp ${amount.toLocaleString('id-ID')} berhasil diajukan!`, 'success');
+                
+                document.getElementById('wd-amount').value = '';
+                document.getElementById('wd-norek').value = '';
+                document.getElementById('wd-name').value = '';
+                window.updateSummary();
+                window.switchPage(null, 'dasbor'); 
+
+            } catch (error) {
+                window.showToast('Gagal memproses penarikan.', 'error');
+                console.error(error);
+            }
+            
+            btn.innerHTML = "Tarik Sekarang <i class='bx bx-right-arrow-alt'></i>";
+            btn.disabled = false;
+        };
+    </script>
+</body>
+</html>
