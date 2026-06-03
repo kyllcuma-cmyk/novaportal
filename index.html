@@ -160,8 +160,9 @@
 
         /* LIST HISTORY & USERS */
         .history-list { display: flex; flex-direction: column; gap: 10px; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 16px; transition: 0.2s; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 16px; transition: 0.2s; cursor: pointer; border: 0.5px solid transparent;}
         .history-item:active { background: rgba(255,255,255,0.05); }
+        .history-item:hover { border-color: var(--glass-highlight); }
         .history-info { display: flex; align-items: center; gap: 12px; }
         .history-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
         .history-icon.success { background: rgba(50, 215, 75, 0.15); color: var(--success); }
@@ -268,6 +269,45 @@
         .btn-cancel { color: var(--accent); border-right: 0.5px solid var(--glass-border); }
         .btn-confirm { color: var(--danger); }
         .modal-btn:active { background: rgba(255,255,255,0.05); }
+
+        /* STYLES MODAL RESI (ALA GOPAY DARK MODE) */
+        .modal-receipt-box {
+            background: #1c1c1e; /* Warna gelap ala iOS Dark Mode */
+            border: 0.5px solid var(--glass-border);
+            border-radius: 24px;
+            width: 100%; max-width: 320px; text-align: center; overflow: hidden;
+            transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            color: #ffffff;
+        }
+        .modal-overlay.active .modal-receipt-box { transform: scale(1); }
+        .receipt-content { padding: 24px; }
+        .receipt-header { margin-bottom: 20px; }
+        .receipt-header i { font-size: 48px; }
+        .receipt-title { font-size: 18px; font-weight: 700; margin-top: 8px; color: #ffffff; }
+        .receipt-date { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        
+        .receipt-mid { 
+            border-top: 2px dashed rgba(255, 255, 255, 0.15); 
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.15); 
+            padding: 16px 0; margin-bottom: 20px; 
+        }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
+        .receipt-row:last-child { margin-bottom: 0; }
+        .receipt-label { color: var(--text-muted); font-size: 13px; }
+        .receipt-val { font-weight: 600; font-size: 14px; color: #ffffff; text-align: right; }
+        .receipt-val.danger { color: var(--danger); }
+        .receipt-val.warning { color: var(--warning); }
+        .receipt-val.success { color: var(--success); }
+
+        .btn-close-receipt {
+            width: 100%; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: #ffffff; padding: 14px; 
+            border-radius: 16px; border: 0.5px solid rgba(255, 255, 255, 0.15); 
+            font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-close-receipt:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.15); }
 
         /* CUSTOMER SERVICE CHAT UI */
         .cs-modal-overlay { 
@@ -442,6 +482,54 @@
 
     <div id="customToast" class="toast">
         <i id="toastIcon" class='bx bxs-check-circle'></i> <span id="toastMessage">Berhasil!</span>
+    </div>
+
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-receipt-box">
+            <div class="receipt-content">
+                <div class="receipt-header">
+                    <i id="receipt-icon" class='bx bxs-time-five' style="color: #ff9f0a;"></i>
+                    <h3 class="receipt-title" id="receipt-title">Penarikan Diproses</h3>
+                    <p class="receipt-date" id="receipt-date">-</p>
+                </div>
+                
+                <div class="receipt-mid">
+                    <div class="receipt-row">
+                        <span class="receipt-label">Total Penarikan</span>
+                        <span class="receipt-val" id="receipt-amount">Rp 0</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Biaya Admin</span>
+                        <span class="receipt-val danger">-Rp 1.500</span>
+                    </div>
+                    <div class="receipt-row" style="margin-top: 16px;">
+                        <span class="receipt-label">Total Dipotong</span>
+                        <span class="receipt-val" id="receipt-total" style="font-size: 18px;">Rp 0</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div class="receipt-row">
+                        <span class="receipt-label">Metode</span>
+                        <span class="receipt-val" id="receipt-method">-</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">No. Rekening</span>
+                        <span class="receipt-val" id="receipt-norek">-</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Atas Nama</span>
+                        <span class="receipt-val" id="receipt-name">-</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-label">Status</span>
+                        <span class="receipt-val warning" id="receipt-status">Menunggu</span>
+                    </div>
+                </div>
+
+                <button class="btn-close-receipt" onclick="closeModal('receiptModal')">Tutup Resi</button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="logoutModal">
@@ -1000,7 +1088,6 @@
         let pollingInterval = null;
         let csUnsubscribe = null;
 
-        // FUNGSI ANIMASI DYNAMIC ISLAND
         window.showDynamicIsland = function(message) {
             const island = document.getElementById('dynamicIsland');
             const islandText = document.getElementById('dynamicIslandText');
@@ -1008,32 +1095,25 @@
             islandText.innerText = message;
             island.classList.add('show');
             
-            // Sembunyikan setelah 3.5 detik
             setTimeout(() => {
                 island.classList.remove('show');
             }, 3500);
         };
 
-        // FUNGSI MEMUTAR 1 VIDEO SAJA & MEMANGGIL DYNAMIC ISLAND
         window.playVid = function(overlayElement) {
-            // Hentikan video lain yang mungkin menyala
             document.querySelectorAll('.video-container').forEach(container => {
                 container.querySelector('.vid-overlay').style.display = 'flex';
                 container.querySelector('iframe').src = ''; 
             });
 
-            // Putar video yang diklik
             const myContainer = overlayElement.parentElement;
             const myIframe = myContainer.querySelector('iframe');
             
             overlayElement.style.display = 'none';
-            // Muat video tanpa parameter autoplay agar suara tidak dimute
             myIframe.src = myIframe.getAttribute('data-src'); 
 
-            // Munculkan notifikasi instruksi ke user (Tanpa Emoji)
             window.showDynamicIsland("Ketuk sekali lagi untuk memutar suara!");
         };
-        // -------------------------------------------------------------
 
         window.onload = function() {
             const savedUser = localStorage.getItem('novaUser');
@@ -1244,6 +1324,51 @@
             btn.disabled = false;
         };
 
+        // FUNGSI TAMPILKAN RESI DARI STRING ENCODED
+        window.showReceiptFromEncoded = function(encodedData) {
+            const wdData = JSON.parse(decodeURIComponent(encodedData));
+            window.showReceipt(wdData);
+        };
+
+        // FUNGSI UTAMA TAMPILKAN RESI
+        window.showReceipt = function(wdData) {
+            const d = new Date(wdData.date);
+            const dateStr = `${d.getDate()} ${d.toLocaleString('id-ID', {month:'short'})} ${d.getFullYear()} • ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+
+            document.getElementById('receipt-date').innerText = dateStr;
+            document.getElementById('receipt-amount').innerText = `Rp ${wdData.amount.toLocaleString('id-ID')}`;
+            document.getElementById('receipt-total').innerText = `Rp ${(wdData.amount + 1500).toLocaleString('id-ID')}`;
+            document.getElementById('receipt-method').innerText = wdData.method;
+            document.getElementById('receipt-norek').innerText = wdData.norek || '-';
+            document.getElementById('receipt-name').innerText = wdData.name || '-';
+
+            const statusEl = document.getElementById('receipt-status');
+            const iconEl = document.getElementById('receipt-icon');
+            const titleEl = document.getElementById('receipt-title');
+            
+            statusEl.innerText = wdData.status;
+            statusEl.className = 'receipt-val'; // reset class
+            
+            if(wdData.status === 'Berhasil') {
+                statusEl.classList.add('success');
+                iconEl.className = 'bx bxs-check-circle';
+                iconEl.style.color = '#34c759';
+                titleEl.innerText = 'Penarikan Berhasil';
+            } else if(wdData.status === 'Ditolak') {
+                statusEl.classList.add('danger');
+                iconEl.className = 'bx bxs-x-circle';
+                iconEl.style.color = '#ff3b30';
+                titleEl.innerText = 'Penarikan Ditolak';
+            } else {
+                statusEl.classList.add('warning');
+                iconEl.className = 'bx bxs-time-five';
+                iconEl.style.color = '#ff9f0a';
+                titleEl.innerText = 'Penarikan Diproses';
+            }
+
+            window.openModal('receiptModal');
+        };
+
         function renderDashboardUI(userData) {
             document.getElementById('prof-username').innerText = userData.username;
             document.getElementById('prof-email').innerText = userData.email;
@@ -1301,9 +1426,12 @@
                     
                     let iconClass = wd.status === 'Berhasil' ? 'success' : (wd.status === 'Ditolak' ? 'danger' : 'pending');
                     let iconBx = wd.status === 'Berhasil' ? 'bx-check' : (wd.status === 'Ditolak' ? 'bx-x' : 'bx-time-five');
+                    
+                    // Encode data wd biar bisa dikirim via parameter HTML
+                    const wdEncoded = encodeURIComponent(JSON.stringify(wd));
 
                     historyContainer.innerHTML += `
-                        <div class="history-item">
+                        <div class="history-item" onclick="showReceiptFromEncoded('${wdEncoded}')">
                             <div class="history-info">
                                 <div class="history-icon ${iconClass}"><i class='bx ${iconBx}'></i></div>
                                 <div class="history-text">
@@ -1611,8 +1739,10 @@
             const userDataStr = localStorage.getItem('novaUser');
             if(!userDataStr) return window.showToast('Sesi tidak valid, silakan login ulang', 'error');
             
-            const userData = JSON.parse(userDataStr);
+            let userData = JSON.parse(userDataStr);
             const method = document.getElementById('wd-method').value;
+            const norek = document.getElementById('wd-norek').value;
+            const name = document.getElementById('wd-name').value;
             const amount = parseInt(document.getElementById('wd-amount').value);
             const adminFee = 1500;
             const totalDeduct = amount + adminFee;
@@ -1629,6 +1759,8 @@
                 const userRef = doc(db, "users", userData.id);
                 const newWithdrawal = {
                     method: method,
+                    norek: norek, // Menyimpan no rek biar bisa muncul di resi
+                    name: name,   // Menyimpan nama biar bisa muncul di resi
                     amount: amount,
                     status: 'Menunggu',
                     date: new Date().toISOString()
@@ -1639,13 +1771,25 @@
                     withdrawals: arrayUnion(newWithdrawal)
                 });
 
-                window.showToast(`Penarikan ${method} Rp ${amount.toLocaleString('id-ID')} berhasil diajukan!`, 'success');
+                // --- UPDATE LOKAL SUPAYA HISTORY LANGSUNG MUNCUL TANPA REFRESH ---
+                userData.balance -= totalDeduct;
+                if(!userData.withdrawals) userData.withdrawals = [];
+                userData.withdrawals.push(newWithdrawal);
+                localStorage.setItem('novaUser', JSON.stringify(userData));
                 
+                // Render Ulang UI Dasbor
+                renderDashboardUI(userData);
+
+                // --- RESET FORM & PINDAH PAGE ---
                 document.getElementById('wd-amount').value = '';
                 document.getElementById('wd-norek').value = '';
                 document.getElementById('wd-name').value = '';
                 window.updateSummary();
                 window.switchPage(null, 'dasbor'); 
+
+                // TAMPILKAN RESI
+                window.showReceipt(newWithdrawal);
+                window.showToast(`Penarikan ${method} Rp ${amount.toLocaleString('id-ID')} berhasil diajukan!`, 'success');
 
             } catch (error) {
                 window.showToast('Gagal memproses penarikan.', 'error');
