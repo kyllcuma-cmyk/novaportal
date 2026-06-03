@@ -77,6 +77,14 @@
         }
         .header-text { font-size: 17px; font-weight: 700; letter-spacing: -0.5px; }
         
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .tg-btn { 
+            background: rgba(10, 132, 255, 0.1); color: var(--accent); width: 36px; height: 36px; 
+            display: flex; justify-content: center; align-items: center; font-size: 20px; 
+            cursor: pointer; transition: 0.2s; border: 0.5px solid rgba(10, 132, 255, 0.3); outline: none;
+            border-radius: 8px; text-decoration: none;
+        }
+        .tg-btn:active { opacity: 0.7; transform: scale(0.9); }
         .logout-btn { 
             background: rgba(255, 69, 58, 0.1); color: var(--danger); width: 36px; height: 36px; 
             display: flex; justify-content: center; align-items: center; font-size: 20px; 
@@ -611,7 +619,10 @@
             </div>
             <div class="header-text">NovaPortal Afiliator Cloud</div>
         </div>
-        <button class="logout-btn" onclick="openModal('logoutModal')"><i class='bx bx-log-out'></i></button>
+        <div class="header-actions">
+            <a href="https://t.me/Novaportalhub" target="_blank" class="tg-btn"><i class='bx bxl-telegram'></i></a>
+            <button class="logout-btn" onclick="openModal('logoutModal')"><i class='bx bx-log-out'></i></button>
+        </div>
     </header>
 
     <main class="app-container">
@@ -1023,6 +1034,13 @@
                             <span class="menu-text">Pengaturan Akun</span>
                         </div>
                         <div class="menu-right"><i class='bx bx-chevron-right'></i></div>
+                    </div>
+                    <div class="menu-item" onclick="window.open('https://t.me/Novaportalhub', '_blank')">
+                        <div class="menu-left">
+                            <div class="menu-icon icon-blue"><i class='bx bxl-telegram'></i></div>
+                            <span class="menu-text">Bergabung Grup</span>
+                        </div>
+                        <div class="menu-right"><i class='bx bx-link-external'></i></div>
                     </div>
                 </div>
             </div>
