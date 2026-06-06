@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-visual">
-    <title>NovaPortal Afiliator Cloud</title>
+    <title>NovaPortal Tugas Cloud</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     
@@ -411,6 +411,63 @@
         .nav-item.active i { transform: translateY(-2px) scale(1.05); }
         .nav-item.active::after { content: ''; position: absolute; bottom: 6px; width: 4px; height: 4px; background: var(--text-main); border-radius: 50%; }
         
+        /* --- TOMBOL WITHDRAW MELAYANG ELEGAN (KOTAK + TEKS DI BAWAH) --- */
+        .nav-item.nav-withdraw-wrapper {
+            overflow: visible;
+            position: relative;
+            z-index: 1001; /* Pastikan di atas navbar */
+        }
+        
+        .withdraw-special {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--accent) 0%, #005bb5 100%);
+            color: #fff !important;
+            border-radius: 16px; /* Kotak sudut tumpul halus */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: -24px; /* Setengah melayang memotong batas atas navbar */
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 6px 15px rgba(10, 132, 255, 0.4);
+            border: 4px solid var(--bg-color); /* Kunci ilusi navbar melengkung memotong tombol */
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .withdraw-special i {
+            font-size: 24px !important;
+            margin-bottom: 0 !important;
+            transition: 0.3s;
+        }
+
+        .withdraw-text {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 24px; /* Dorong teks agar pas di bawah kotak */
+            transition: 0.3s;
+        }
+
+        /* Efek Active Khusus Tombol Withdraw */
+        .nav-item.nav-withdraw-wrapper.active .withdraw-special {
+            transform: translateX(-50%) translateY(-4px) scale(1.05); /* Membal sedikit */
+            box-shadow: 0 8px 20px rgba(10, 132, 255, 0.6);
+        }
+        
+        .nav-item.nav-withdraw-wrapper.active .withdraw-text {
+            color: var(--text-main);
+        }
+
+        .nav-item.nav-withdraw-wrapper.active i {
+            transform: none; /* Cegah bentrok animasi ganda dari class .nav-item */
+        }
+
+        .nav-item.nav-withdraw-wrapper.active::after {
+            display: none; /* Hilangkan titik dot putih default */
+        }
+
         /* Style Cover Video Anti-Lag */
         .vid-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -572,14 +629,14 @@
     <div class="modal-overlay" id="rulesModal">
         <div class="modal-box" style="max-width: 360px;">
             <div class="modal-content">
-                <h3 class="modal-title" style="text-align: center;">Syarat & Ketentuan Afiliator</h3>
+                <h3 class="modal-title" style="text-align: center;">Syarat & Ketentuan Tugas</h3>
                 <div class="modal-body">
-                    <p>Dengan bergabung sebagai Afiliator NovaPortal, Anda wajib mematuhi aturan ketat berikut:</p>
+                    <p>Dengan bergabung pada Tugas NovaPortal, Anda wajib mematuhi aturan ketat berikut:</p>
                     <ul>
                         <li><strong>Dilarang Spam:</strong> Tautan hanya boleh dibagikan secara organik ke teman, komunitas, atau media sosial Anda.</li>
                         <li><strong>Dilarang Akun Ganda (Tuyul):</strong> Mendaftarkan diri sendiri berulang kali menggunakan perangkat atau IP Address yang sama akan menyebabkan <strong>Pemblokiran Permanen</strong>.</li>
                         <li><strong>Proses Verifikasi:</strong> Setiap pendaftar baru dari tautan Anda akan masuk ke tahap <em>Pengecekan Sistem</em> terlebih dahulu untuk memastikan keaslian aktivitas pengguna tersebut.</li>
-                        <li><strong>Penarikan Komisi:</strong> Komisi afiliasi baru dapat ditarik setelah mencapai batas minimum penarikan Rp 25.000 dengan data rekening yang valid dan sesuai.</li>
+                        <li><strong>Penarikan Komisi:</strong> Komisi baru dapat ditarik setelah mencapai batas minimum penarikan Rp 25.000 dengan data rekening yang valid dan sesuai.</li>
                     </ul>
                 </div>
             </div>
@@ -617,7 +674,7 @@
                     <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1384 20.1932 10.2052 17.887 10.0211C17.3879 6.64392 14.4759 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01138 11.464 4.03348 11.6908C2.29828 12.3929 1 14.0722 1 16C1 18.2091 2.79086 20 5 20H17.5Z"/>
                 </svg>
             </div>
-            <div class="header-text">NovaPortal Afiliator Cloud</div>
+            <div class="header-text">NovaPortal Tugas Cloud</div>
         </div>
         <div class="header-actions">
             <a href="https://t.me/Novaportalhub" target="_blank" class="tg-btn"><i class='bx bxl-telegram'></i></a>
@@ -745,7 +802,7 @@
                         </div>
                     </div>
                     <div class="dash-stat-item">
-                        <div class="dash-stat-icon icon-aff"><i class='bx bx-network-chart'></i></div>
+                        <div class="dash-stat-icon icon-aff"><i class='bx bx-task'></i></div>
                         <div>
                             <div class="dash-stat-label">Total Jaringan</div>
                             <div class="dash-stat-val" id="dash-affiliates">0 Orang</div>
@@ -758,7 +815,7 @@
                 <i class='bx bxs-error-circle'></i>
                 <div class="alert-content">
                     <h4>Peringatan Sistem!</h4>
-                    <p>Demi menjaga keamanan ekosistem NovaPortal, seluruh member diwajibkan untuk mematuhi kebijakan afiliasi yang berlaku.</p>
+                    <p>Demi menjaga keamanan ekosistem NovaPortal, seluruh member diwajibkan untuk mematuhi kebijakan yang berlaku.</p>
                     <ul>
                         <li>Dilarang keras menggunakan <strong>bot / script otomatis</strong>.</li>
                         <li>Sistem <strong>memantau Alamat IP</strong> secara ketat. Pendaftaran akun ganda pada IP yang sama akan terdeteksi otomatis.</li>
@@ -775,7 +832,7 @@
             </div>
         </section>
 
-        <section id="afiliator" class="page-section">
+        <section id="tugas" class="page-section">
             <div class="glass-card">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
                     <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, rgba(10,132,255,0.2), rgba(10,132,255,0.05)); border: 1px solid rgba(10,132,255,0.3); box-shadow: 0 4px 12px rgba(10,132,255,0.15);">
@@ -804,14 +861,14 @@
                 <div class="dash-stat-item" style="background: linear-gradient(135deg, rgba(50, 215, 75, 0.15) 0%, rgba(50, 215, 75, 0.05) 100%); border-color: rgba(50, 215, 75, 0.3);">
                     <div class="dash-stat-icon icon-green"><i class='bx bx-check-circle'></i></div>
                     <div>
-                        <div class="dash-stat-label" style="color: rgba(255,255,255,0.8);">Afiliator Sukses</div>
+                        <div class="dash-stat-label" style="color: rgba(255,255,255,0.8);">Tugas Sukses</div>
                         <div class="dash-stat-val" id="box-aff-success">0</div>
                     </div>
                 </div>
                 <div class="dash-stat-item" style="background: linear-gradient(135deg, rgba(255, 159, 10, 0.15) 0%, rgba(255, 159, 10, 0.05) 100%); border-color: rgba(255, 159, 10, 0.3);">
                     <div class="dash-stat-icon icon-orange"><i class='bx bx-time-five'></i></div>
                     <div>
-                        <div class="dash-stat-label" style="color: rgba(255,255,255,0.8);">Afiliator Pending</div>
+                        <div class="dash-stat-label" style="color: rgba(255,255,255,0.8);">Tugas Pending</div>
                         <div class="dash-stat-val" id="box-aff-pending">0</div>
                     </div>
                 </div>
@@ -820,7 +877,7 @@
             <div class="alert-success">
                 <i class='bx bx-check-shield'></i>
                 <div class="alert-content">
-                    <h4>Cara Kerja & Aturan Afiliasi</h4>
+                    <h4>Cara Kerja & Aturan Tugas</h4>
                     <p style="margin-bottom: 8px;"><strong>Langkah-langkah mendapatkan komisi:</strong></p>
                     <ul style="margin-bottom: 12px;">
                         <li><strong>1. Bagikan Tautan:</strong> Tekan tombol <em>Salin Link</em> atau <em>Bagikan</em> untuk mendistribusikan tautan unik Anda.</li>
@@ -931,7 +988,7 @@
             <div class="alert-info" style="margin-bottom: 20px;">
                 <i class='bx bx-bulb'></i>
                 <div class="alert-content">
-                    <h4>Senjata Rahasia Afiliator Sukses!</h4>
+                    <h4>Senjata Rahasia Tugas Sukses!</h4>
                     <p>Mau komisi mengalir deras setiap hari? Gunakan video-video viral di bawah ini! Konten ini sudah didesain khusus agar penonton langsung penasaran dan mendaftar.</p>
                     
                     <p style="margin-top: 8px;"><em>Video yang di bawah adalah contoh, kalian bisa buat konten sendiri dari link <a href="https://miner.mineverse-chain.my.id/" target="_blank" style="color: #fff; text-decoration: underline;">https://miner.mineverse-chain.my.id/</a>. Selamat berkreasi!</em></p>
@@ -1017,7 +1074,7 @@
                     <div class="menu-item" onclick="openModal('rulesModal')">
                         <div class="menu-left">
                             <div class="menu-icon icon-orange"><i class='bx bx-file'></i></div>
-                            <span class="menu-text">Peraturan Afiliasi</span>
+                            <span class="menu-text">Peraturan Tugas</span>
                         </div>
                         <div class="menu-right"><i class='bx bx-chevron-right'></i></div>
                     </div>
@@ -1049,8 +1106,15 @@
 
     <nav class="bottom-nav" id="main-nav">
         <div class="nav-item active" id="nav-dasbor" onclick="switchPage(event, 'dasbor')"><i class='bx bxs-dashboard'></i><span>Dasbor</span></div>
-        <div class="nav-item" onclick="switchPage(event, 'afiliator')"><i class='bx bx-network-chart'></i><span>Afiliator</span></div>
-        <div class="nav-item" onclick="switchPage(event, 'withdraw')"><i class='bx bx-wallet-alt'></i><span>Withdraw</span></div>
+        <div class="nav-item" onclick="switchPage(event, 'tugas')"><i class='bx bx-task'></i><span>Tugas</span></div>
+        
+        <div class="nav-item nav-withdraw-wrapper" onclick="switchPage(event, 'withdraw')">
+            <div class="withdraw-special">
+                <i class='bx bx-wallet-alt'></i>
+            </div>
+            <span class="withdraw-text">Withdraw</span>
+        </div>
+        
         <div class="nav-item" onclick="switchPage(event, 'konten')"><i class='bx bx-layer'></i><span>Konten</span></div>
         <div class="nav-item" onclick="switchPage(event, 'profil')"><i class='bx bx-user'></i><span>Profil</span></div>
     </nav>
@@ -1179,7 +1243,7 @@
                 formLogin.style.display = 'none';
                 formRegister.style.display = 'block';
                 title.innerText = 'Daftar Akun';
-                subtitle.innerText = 'Bergabung dengan NovaPortal Afiliator';
+                subtitle.innerText = 'Bergabung dengan NovaPortal Tugas';
             } else {
                 formRegister.style.display = 'none';
                 formLogin.style.display = 'block';
