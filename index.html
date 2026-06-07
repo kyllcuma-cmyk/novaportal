@@ -401,59 +401,89 @@
         .toast.info { border-color: rgba(10, 132, 255, 0.4); }
         .toast.info i { color: var(--accent); }
 
-        /* 8. NAVIGASI BAWAH */
-        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px; background: rgba(30, 30, 30, 0.65); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 0.5px solid rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.25); border-radius: 30px; display: flex; justify-content: space-around; padding: 8px; z-index: 1000; box-shadow: 0 15px 30px rgba(0,0,0,0.5); display: none; }
+        /* 8. NAVIGASI BAWAH (DIPERBARUI) */
+        .bottom-nav { 
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            width: calc(100% - 32px); max-width: 400px; 
+            display: flex; justify-content: space-around; align-items: center; 
+            padding: 8px 4px; z-index: 1000; 
+            display: none; 
+        }
         .bottom-nav.active { display: flex; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); height: 50px; border-radius: 18px; cursor: pointer; transition: 0.3s; position: relative; }
+
+        /* Layer Background terpisah khusus buat efek cekungan/Masking */
+        .bottom-nav-bg {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(30, 30, 30, 0.65);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 33px; /* Pill Shape */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            border: 0.5px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            
+            /* INI MAGISNYA: Melubangi background khusus area tombol agar membentuk cekungan */
+            mask-image: radial-gradient(circle at 50% 14px, transparent 33px, black 34px);
+            -webkit-mask-image: radial-gradient(circle at 50% 14px, transparent 33px, black 34px);
+            z-index: -1;
+        }
+
+        .nav-item { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            color: var(--text-muted); height: 50px; border-radius: 18px; cursor: pointer; transition: 0.3s; position: relative; 
+        }
         .nav-item i { font-size: 20px; margin-bottom: 2px; transition: 0.3s; }
         .nav-item span { font-size: 10px; font-weight: 600; }
         .nav-item.active { color: var(--text-main); }
         .nav-item.active i { transform: translateY(-2px) scale(1.05); }
         .nav-item.active::after { content: ''; position: absolute; bottom: 6px; width: 4px; height: 4px; background: var(--text-main); border-radius: 50%; }
         
-        /* --- TOMBOL WITHDRAW MELAYANG ELEGAN (KOTAK + TEKS DI BAWAH) --- */
+        /* --- TOMBOL WITHDRAW MELAYANG ELEGAN (CUTOUT/CEKUNGAN) --- */
         .nav-item.nav-withdraw-wrapper {
             overflow: visible;
             position: relative;
-            z-index: 1001; /* Pastikan di atas navbar */
+            z-index: 1001;
         }
         
         .withdraw-special {
-            width: 52px;
-            height: 52px;
+            width: 54px;
+            height: 54px;
             background: linear-gradient(135deg, var(--accent) 0%, #005bb5 100%);
             color: #fff !important;
-            border-radius: 16px; /* Kotak sudut tumpul halus */
+            border-radius: 50%; /* Dibuat bulat agar sempurna mengisi cekungan */
             display: flex;
             justify-content: center;
             align-items: center;
             position: absolute;
-            top: -24px; /* Setengah melayang memotong batas atas navbar */
+            top: -22px; 
             left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 6px 15px rgba(10, 132, 255, 0.4);
-            border: 4px solid var(--bg-color); /* Kunci ilusi navbar melengkung memotong tombol */
+            box-shadow: 0 8px 24px rgba(10, 132, 255, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            border: 1.5px solid rgba(255, 255, 255, 0.15); 
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
         }
 
         .withdraw-special i {
-            font-size: 24px !important;
+            font-size: 26px !important;
             margin-bottom: 0 !important;
             transition: 0.3s;
         }
 
         .withdraw-text {
+            position: absolute;
+            bottom: 2px; /* Teks duduk manis di bawah tombol dalam navigasi */
             font-size: 10px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-top: 24px; /* Dorong teks agar pas di bawah kotak */
             transition: 0.3s;
+            z-index: 1;
         }
 
         /* Efek Active Khusus Tombol Withdraw */
         .nav-item.nav-withdraw-wrapper.active .withdraw-special {
-            transform: translateX(-50%) translateY(-4px) scale(1.05); /* Membal sedikit */
-            box-shadow: 0 8px 20px rgba(10, 132, 255, 0.6);
+            transform: translateX(-50%) translateY(-3px) scale(1.05); 
+            box-shadow: 0 10px 25px rgba(10, 132, 255, 0.6);
         }
         
         .nav-item.nav-withdraw-wrapper.active .withdraw-text {
@@ -461,11 +491,11 @@
         }
 
         .nav-item.nav-withdraw-wrapper.active i {
-            transform: none; /* Cegah bentrok animasi ganda dari class .nav-item */
+            transform: none; 
         }
 
         .nav-item.nav-withdraw-wrapper.active::after {
-            display: none; /* Hilangkan titik dot putih default */
+            display: none; 
         }
 
         /* Style Cover Video Anti-Lag */
@@ -1105,6 +1135,8 @@
     </main>
 
     <nav class="bottom-nav" id="main-nav">
+        <div class="bottom-nav-bg"></div>
+        
         <div class="nav-item active" id="nav-dasbor" onclick="switchPage(event, 'dasbor')"><i class='bx bxs-dashboard'></i><span>Dasbor</span></div>
         <div class="nav-item" onclick="switchPage(event, 'tugas')"><i class='bx bx-task'></i><span>Tugas</span></div>
         
@@ -1148,13 +1180,14 @@
         const appUtama = initializeApp(firebaseConfigUtama, "appUtama");
         const db = initializeFirestore(appUtama, { experimentalForceLongPolling: true });
 
+        // Ini adalah Konfigurasi Baru untuk Customer Service
         const firebaseConfigCS = {
-            apiKey: "AIzaSyBg4UcANepqkqPaz8UD149ekyk7jliNyQY",
-            authDomain: "novaportal-7ceab.firebaseapp.com",
-            projectId: "novaportal-7ceab",
-            storageBucket: "novaportal-7ceab.firebasestorage.app",
-            messagingSenderId: "135194221374",
-            appId: "1:135194221374:web:66c4339c5c06dd2a2faa6f"
+            apiKey: "AIzaSyB4VyU20R-F3v7eQx9vaS72gkKeRYtiRa0",
+            authDomain: "novaportal-cloud.firebaseapp.com",
+            projectId: "novaportal-cloud",
+            storageBucket: "novaportal-cloud.firebasestorage.app",
+            messagingSenderId: "517683852662",
+            appId: "1:517683852662:web:facd988fb1985164327657"
         };
         const appCS = initializeApp(firebaseConfigCS, "appCS");
         const dbCS = getFirestore(appCS);
